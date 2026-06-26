@@ -1976,419 +1976,92 @@ body.modal-open { overflow: hidden; }
    DSPORTS TV — REPRODUCTOR + LISTA DE CANALES
    ===================================================================== */
 
+/* ── DSPORTS TV – selector de canales (sin reproductor) ── */
+/* Se eliminó el HTML nativo <video>, HLS.js, overlays, info bar,     */
+/* sidebar de canales, failover automático y ~300 líneas de JS/CSS.   */
+/* Ahora solo muestra una grilla con tarjetas que abren en new tab.    */
+
 .view-dsports {
-  --dsports-bg: #000;
   --dsports-radius: 14px;
-  --dsports-gap: 1rem;
 }
 
-.dsports-layout {
+.dsports-grid {
   display: grid;
-  grid-template-columns: minmax(0, 1fr) 340px;
-  gap: var(--dsports-gap);
-  align-items: start;
-}
-
-@media (max-width: 1100px) {
-  .dsports-layout {
-    grid-template-columns: minmax(0, 1fr) 300px;
-  }
-}
-@media (max-width: 900px) {
-  .dsports-layout {
-    grid-template-columns: minmax(0, 1fr);
-  }
-}
-
-/* === Reproductor === */
-.dsports-player-wrap {
-  display: flex;
-  flex-direction: column;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
   gap: 0.75rem;
-  min-width: 0;
 }
 
-.dsports-player {
-  position: relative;
-  width: 100%;
-  aspect-ratio: 16 / 9;
-  background: var(--dsports-bg);
-  border-radius: var(--dsports-radius);
-  overflow: hidden;
-  border: 1px solid var(--border);
-  box-shadow: var(--shadow);
-}
-
-.dsports-video {
-  width: 100%;
-  height: 100%;
-  display: block;
-  background: #000;
-  object-fit: contain;
-  outline: none;
-}
-
-/* Overlay superior: marca + nombre canal activo */
-.dsports-overlay-top {
-  position: absolute;
-  top: 0; left: 0; right: 0;
-  padding: 12px 14px;
+.dsports-card {
   display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 0.75rem;
-  pointer-events: none;
-  background: linear-gradient(180deg, rgba(0,0,0,0.65) 0%, rgba(0,0,0,0) 100%);
-  z-index: 2;
-}
-
-.dsports-brand {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  pointer-events: auto;
-}
-
-.dsports-logo-dot {
-  display: inline-block;
-  width: 10px;
-  height: 10px;
-  border-radius: 50%;
-  background: var(--accent-rose);
-  box-shadow: 0 0 0 3px rgba(244, 63, 94, 0.18);
-  animation: pulse 1.6s infinite;
-}
-
-.dsports-brand-text {
-  color: #fff;
-  font-weight: 800;
-  letter-spacing: 0.04em;
-  font-size: 0.95rem;
-  text-shadow: 0 1px 4px rgba(0,0,0,0.8);
-}
-
-.dsports-brand-tag {
-  font-size: 0.65rem;
-  font-weight: 700;
-  padding: 2px 7px;
-  background: var(--accent-rose);
-  color: #fff;
-  border-radius: 4px;
-  letter-spacing: 0.06em;
-  box-shadow: 0 0 12px rgba(244, 63, 94, 0.4);
-}
-
-.dsports-current-info {
-  text-align: right;
-  pointer-events: auto;
-}
-
-.dsports-current-name {
-  color: #fff;
-  font-weight: 600;
-  font-size: 0.85rem;
-  text-shadow: 0 1px 4px rgba(0,0,0,0.8);
-  max-width: 220px;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-
-.dsports-current-region {
-  color: rgba(255,255,255,0.75);
-  font-size: 0.65rem;
-  margin-top: 2px;
-  text-shadow: 0 1px 4px rgba(0,0,0,0.8);
-}
-
-/* Overlay central: loading / error */
-.dsports-overlay-center {
-  position: absolute;
-  inset: 0;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  background: linear-gradient(135deg, rgba(15, 23, 42, 0.55), rgba(2, 6, 23, 0.85));
-  z-index: 3;
-  pointer-events: none;
-}
-.dsports-overlay-center > * { pointer-events: auto; }
-
-.dsports-loading,
-.dsports-error {
-  display: flex;
-  flex-direction: column;
   align-items: center;
   gap: 0.75rem;
-  text-align: center;
-  color: #fff;
-  padding: 1.5rem;
-}
-
-.dsports-spin {
-  width: 44px;
-  height: 44px;
-  border: 3px solid rgba(255, 255, 255, 0.15);
-  border-top-color: var(--accent);
-  border-radius: 50%;
-  animation: dsports-spin 0.9s linear infinite;
-}
-
-@keyframes dsports-spin {
-  to { transform: rotate(360deg); }
-}
-
-.dsports-loading-text {
-  font-size: 0.85rem;
-  color: rgba(255,255,255,0.85);
-}
-
-.dsports-error-icon {
-  font-size: 2.25rem;
-}
-
-.dsports-error-text {
-  font-size: 0.85rem;
-  color: rgba(255,255,255,0.9);
-  max-width: 320px;
-  line-height: 1.4;
-}
-
-.dsports-error-actions {
-  display: flex;
-  gap: 0.5rem;
-  flex-wrap: wrap;
-  justify-content: center;
-  margin-top: 0.25rem;
-}
-
-/* Hint: click para mostrar controles */
-.dsports-tap-hint {
-  position: absolute;
-  bottom: 64px;
-  left: 50%;
-  transform: translateX(-50%);
-  padding: 4px 12px;
-  background: rgba(0,0,0,0.5);
-  color: rgba(255,255,255,0.7);
-  border-radius: 999px;
-  font-size: 0.7rem;
-  pointer-events: none;
-  opacity: 0;
-  transition: opacity 0.3s;
-  z-index: 2;
-}
-.dsports-player:not(:hover) .dsports-tap-hint { opacity: 0; }
-.dsports-player:hover .dsports-tap-hint { opacity: 1; }
-
-/* === Info bar debajo del reproductor === */
-.dsports-info-bar {
-  display: flex;
-  align-items: stretch;
-  gap: 1px;
-  background: var(--border);
-  border-radius: 10px;
-  overflow: hidden;
-  flex-wrap: wrap;
-}
-
-.dsports-info-stat {
-  flex: 1 1 auto;
-  min-width: 110px;
-  background: var(--bg-card-solid);
-  padding: 0.55rem 0.85rem;
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  gap: 2px;
-}
-
-.dsports-info-stat--actions {
-  flex: 0 0 auto;
-  flex-direction: row;
-  align-items: center;
-  gap: 0.35rem;
-  padding: 0.4rem 0.55rem;
-}
-
-.dsports-info-label {
-  font-size: 0.62rem;
-  font-weight: 600;
-  color: var(--fg-mute);
-  text-transform: uppercase;
-  letter-spacing: 0.06em;
-}
-
-.dsports-info-value {
-  font-size: 0.85rem;
-  font-weight: 700;
-  color: var(--fg);
-}
-.dsports-info-value[data-kind="live"] { color: var(--accent-emerald); }
-.dsports-info-value[data-kind="loading"] { color: var(--accent); }
-.dsports-info-value[data-kind="error"] { color: var(--accent-rose); }
-
-/* === Lista de canales (sidebar) === */
-.dsports-channels {
-  background: var(--bg-card-solid);
-  border: 1px solid var(--border);
-  border-radius: var(--dsports-radius);
-  display: flex;
-  flex-direction: column;
-  max-height: calc((100vw - 4rem) * 9 / 16 + 120px);
-  min-height: 480px;
-  overflow: hidden;
-}
-
-@media (max-width: 900px) {
-  .dsports-channels { max-height: none; min-height: 0; }
-}
-
-.dsports-channels-header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 0.5rem;
   padding: 0.85rem 1rem;
-  border-bottom: 1px solid var(--border);
-  background: var(--bg-elev);
-  flex-wrap: wrap;
+  border-radius: var(--dsports-radius);
+  background: var(--card-bg, #1a1a2e);
+  border: 1px solid var(--border, #2a2a3e);
+  text-decoration: none;
+  transition: all 0.2s ease;
 }
 
-.dsports-channels-list {
-  display: flex;
-  flex-direction: column;
-  overflow-y: auto;
-  flex: 1;
-  scrollbar-width: thin;
-  scrollbar-color: var(--scrollbar-thumb) var(--scrollbar-track);
+.dsports-card:hover {
+  border-color: var(--accent, #00d4aa);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 20px rgba(0, 212, 170, 0.15);
 }
 
-.dsports-channel {
+.dsports-card:active {
+  transform: scale(0.98);
+}
+
+.dsports-card-num {
   display: flex;
   align-items: center;
-  gap: 0.75rem;
-  padding: 0.7rem 0.85rem;
-  background: transparent;
-  border: none;
-  border-bottom: 1px solid var(--border);
-  cursor: pointer;
-  text-align: left;
-  color: var(--fg-soft);
-  transition: background 0.15s, transform 0.05s;
-  position: relative;
-  width: 100%;
-  font-family: inherit;
-}
-.dsports-channel:last-child { border-bottom: none; }
-.dsports-channel:hover {
-  background: var(--bg-elev);
-}
-.dsports-channel:active {
-  transform: scale(0.99);
-}
-.dsports-channel.active {
-  background: linear-gradient(90deg, rgba(244, 63, 94, 0.12) 0%, transparent 100%);
-  color: var(--fg);
-}
-.dsports-channel.active::before {
-  content: '';
-  position: absolute;
-  left: 0; top: 0; bottom: 0;
-  width: 3px;
-  background: var(--accent-rose);
-}
-.dsports-channel.failed .dsports-channel-name { opacity: 0.5; text-decoration: line-through; }
-.dsports-channel.failed { opacity: 0.7; }
-
-.dsports-channel-num {
+  justify-content: center;
   width: 32px;
   height: 32px;
-  flex-shrink: 0;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  background: var(--bg-elev-2);
-  color: var(--fg);
   border-radius: 8px;
-  font-weight: 800;
+  background: var(--accent-dim, #0a2e28);
+  color: var(--accent, #00d4aa);
+  font-weight: 700;
   font-size: 0.85rem;
+  flex-shrink: 0;
   font-family: 'JetBrains Mono', monospace;
 }
-.dsports-channel.active .dsports-channel-num {
-  background: var(--accent-rose);
-  color: #fff;
-}
 
-.dsports-channel-info {
+.dsports-card-body {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
   flex: 1;
   min-width: 0;
 }
 
-.dsports-channel-name {
-  font-size: 0.85rem;
+.dsports-card-name {
   font-weight: 600;
-  color: var(--fg);
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
+  font-size: 0.9rem;
+  color: var(--fg, #eee);
+  line-height: 1.2;
 }
 
-.dsports-channel-region {
-  font-size: 0.65rem;
-  color: var(--fg-mute);
-  margin-top: 2px;
+.dsports-card-region {
+  font-size: 0.75rem;
+  color: var(--fg-mute, #888);
 }
 
-.dsports-channel-status {
+.dsports-card-action {
+  font-size: 1.1rem;
+  color: var(--accent, #00d4aa);
+  opacity: 0.6;
+  transition: opacity 0.2s;
   flex-shrink: 0;
-  display: flex;
-  align-items: center;
 }
 
-.dsports-status-dot {
-  display: inline-block;
-  width: 8px;
-  height: 8px;
-  border-radius: 50%;
-  background: var(--fg-faint);
-}
-.dsports-status-dot.loading {
-  background: var(--accent);
-  animation: pulse 1.2s infinite;
-}
-.dsports-status-dot.live {
-  background: var(--accent-emerald);
-  box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.2);
-}
-.dsports-status-dot.error {
-  background: var(--accent-rose);
+.dsports-card:hover .dsports-card-action {
+  opacity: 1;
 }
 
-/* === Tips === */
-.dsports-tip {
-  padding: 0.85rem 1rem;
-  background: var(--bg-elev);
-  border-radius: 10px;
-  border: 1px solid var(--border);
-  display: flex;
-  flex-direction: column;
-  gap: 0.25rem;
-}
-
-.dsports-tip-icon { font-size: 1.5rem; margin-bottom: 0.25rem; }
-.dsports-tip-title { font-weight: 700; color: var(--fg); font-size: 0.85rem; }
-.dsports-tip-text { font-size: 0.75rem; color: var(--fg-mute); line-height: 1.4; }
-
-/* === Mobile tweaks === */
 @media (max-width: 640px) {
-  .dsports-overlay-top { padding: 8px 10px; }
-  .dsports-current-name { max-width: 130px; font-size: 0.75rem; }
-  .dsports-brand-text { font-size: 0.85rem; }
-  .dsports-info-stat { min-width: 90px; padding: 0.45rem 0.6rem; }
-  .dsports-info-value { font-size: 0.75rem; }
-  .dsports-info-label { font-size: 0.55rem; }
-  .dsports-info-stat--actions { flex-basis: 100%; justify-content: center; }
-  .dsports-channel-name { font-size: 0.78rem; }
-  .dsports-channel-num { width: 28px; height: 28px; font-size: 0.75rem; }
+  .dsports-grid {
+    grid-template-columns: 1fr;
+  }
 }
