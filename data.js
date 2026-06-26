@@ -268,7 +268,7 @@ const DSPORTS_CHANNELS_RAW = [
 
 // Resolución del proxy según el entorno
 (function resolveDsportsProxy() {
-  const DEFAULT_PROXY = 'https://bobby-rooms-experienced-binding.trycloudflare.com';
+  const DEFAULT_PROXY = 'https://stream-proxy.jazzy-cabin.workers.dev';
   const FORCE_PROXY   = null; // Setea esto a una URL si quieres forzar proxy incluso en HTTP
 
   let proxyUrl = null;
