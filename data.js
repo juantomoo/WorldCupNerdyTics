@@ -268,7 +268,7 @@ const DSPORTS_CHANNELS_RAW = [
 
 // Resolución del proxy según el entorno
 (function resolveDsportsProxy() {
-  const DEFAULT_PROXY = 'https://stream-proxy.jazzy-cabin.workers.dev';
+  const DEFAULT_PROXY = 'https://6828-152-202-185-140.ngrok-free.app';
   const FORCE_PROXY   = null; // Setea esto a una URL si quieres forzar proxy incluso en HTTP
 
   let proxyUrl = null;
