@@ -237,19 +237,19 @@ window.TOURNAMENT_META = {
 // Importante: el reproductor usa HLS.js (cargado por CDN) y aplica
 // failover automático si una fuente falla.
 //
-// HTTPS WRAPPING (auto-detección)
-// ------------------------------
-// Cuando la app corre sobre HTTPS (preview pública, hosting), los
-// streams HTTP de los mirrors serían bloqueados por Mixed Content.
-// En ese caso, las URLs se wrappean a través de un proxy HTTPS propio
-// (`window.DSPORTS_PROXY_URL`) que re-emite el m3u8 y sus segmentos.
-// En HTTP localhost, los streams se usan directamente.
+// =====================================================================
+// Canales DSports — URLs directas HTTP
+// =====================================================================
+// Estas URLs funcionan directamente desde Colombia. Si estás en otro
+// país, el stream podría estar bloqueado a nivel de IP (la CDN filtra
+// por geolocalización).
 //
-// Para sobreescribir el proxy, basta con setear `window.DSPORTS_PROXY_URL`
-// antes de que `data.js` se cargue.
+// Para ver desde el navegador:
+//   - Safari (iOS/macOS): abre el .m3u8 en el reproductor nativo
+//   - Chrome/Firefox desktop: el mixed content bloquea el video
+//     embebido. Usa el botón "▶ Abrir en VLC/player externo".
 // =====================================================================
 
-// 12 mirrors del playlist original (URLs HTTP)
 const DSPORTS_CHANNELS_RAW = [
   { id: 1,  name: 'DSports (Opción 1)',  url: 'http://190.108.83.69:8000/play/a05w/index.m3u8',   region: 'AR-1'  },
   { id: 2,  name: 'DSports (Opción 2)',  url: 'http://148.222.230.201:8000/play/a0pk/index.m3u8', region: 'AR-2'  },
@@ -261,46 +261,16 @@ const DSPORTS_CHANNELS_RAW = [
   { id: 8,  name: 'DSports (Opción 8)',  url: 'http://190.117.20.37:8000/play/a08d/index.m3u8',     region: 'AR-8'  },
   { id: 9,  name: 'DSports (Opción 9)',  url: 'http://177.53.152.117:8000/play/a07d/index.m3u8',    region: 'AR-9'  },
   { id: 10, name: 'DSports (Opción 10)', url: 'http://8.243.126.131:8000/play/a05a/index.m3u8',     region: 'AR-10' },
-  // Estas 2 últimas son mirrors extra por si las 10 primeras fallan todas
   { id: 11, name: 'DSports 2 HD',        url: 'http://190.7.19.197:232/play/a09h/index.m3u8',      region: 'INTL-1'},
   { id: 12, name: 'DSports HD',          url: 'http://190.7.19.197:232/play/a09i/index.m3u8',      region: 'INTL-2'},
 ];
 
-// Resolución del proxy según el entorno
-(function resolveDsportsProxy() {
-  const DEFAULT_PROXY = 'https://6828-152-202-185-140.ngrok-free.app';
-  const FORCE_PROXY   = null; // Setea esto a una URL si quieres forzar proxy incluso en HTTP
-
-  let proxyUrl = null;
-
-  // Override manual via window antes de cargar este script
-  if (typeof window !== 'undefined' && window.DSPORTS_PROXY_URL !== undefined) {
-    proxyUrl = window.DSPORTS_PROXY_URL || null;
-  } else if (FORCE_PROXY) {
-    proxyUrl = FORCE_PROXY;
-  } else {
-    // Auto-detección: usar proxy solo si la app corre en HTTPS
-    const isHttps = typeof window !== 'undefined'
-      && window.location
-      && window.location.protocol === 'https:';
-    if (isHttps) proxyUrl = DEFAULT_PROXY;
-  }
-
-  // Construye la lista final de canales wrappeando URLs si hay proxy
-  window.DSPORTS_PROXY_URL = proxyUrl;
-  window.DSPORTS_CHANNELS = DSPORTS_CHANNELS_RAW.map(ch => {
-    if (!proxyUrl) return ch;
-    const wrapped = proxyUrl.replace(/\/+$/, '') + '/?u=' + encodeURIComponent(ch.url);
-    return { ...ch, url: wrapped, rawUrl: ch.url, viaProxy: true };
-  });
-})();
+window.DSPORTS_CHANNELS = DSPORTS_CHANNELS_RAW;
 
 window.DSPORTS_META = {
   brand: 'DSports',
   category: 'Deportes',
   logo: 'https://upload.wikimedia.org/wikipedia/commons/4/4b/DSports_logo.svg',
-  description: 'Canal deportivo de DirecTV Latin America — fútbol en vivo, highlights y exclusivos. Esta vista muestra 12 mirrors alternativos para que elijas la transmisión con mejor calidad y estabilidad.',
-  note: 'Si una opción se corta o no carga, prueba la siguiente. El reproductor también intenta failover automático después de 8 s.',
-  proxyActive: !!window.DSPORTS_PROXY_URL,
-  proxyUrl: window.DSPORTS_PROXY_URL,
+  description: 'Canal deportivo de DirecTV Latin America — fútbol en vivo, highlights y exclusivos.',
+  note: 'Si un mirror no carga, prueba otro. Safari y Smart TV reproducen el .m3u8 directamente.',
 };

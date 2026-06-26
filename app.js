@@ -3032,12 +3032,6 @@ function renderDSports() {
   const cur = window.__DSPORTS__.current || 0;
   const currentCh = channels[cur] || channels[0];
 
-  const proxyBadge = meta.proxyActive
-    ? `<span class="badge badge-amber" title="HTTPS proxy activo: ${escapeHtml(meta.proxyUrl || '')}">
-         <span class="dot dot-amber"></span> Proxy HTTPS
-       </span>`
-    : '';
-
   return `
     <div class="fade-in view-dsports" style="display: flex; flex-direction: column; gap: 1rem;">
       <!-- Header -->
@@ -3051,7 +3045,6 @@ function renderDSports() {
             <span class="dot dot-emerald pulse"></span> EN VIVO
           </span>
           <span class="badge badge-slate" id="dsportsCountBadge">${channels.length} mirrors</span>
-          ${proxyBadge}
         </div>
       </div>
 
@@ -3120,6 +3113,9 @@ function renderDSports() {
               <div class="dsports-info-value mono" id="dsportsBitrate">—</div>
             </div>
             <div class="dsports-info-stat dsports-info-stat--actions">
+              <a class="btn btn-primary btn-sm" id="dsportsExternalBtn" target="_blank" rel="noopener" title="Abrir en VLC / reproductor externo">
+                ▶ Abrir
+              </a>
               <button class="btn btn-ghost btn-sm" id="dsportsMuteBtn" title="Silenciar/Activar (M)">🔊</button>
               <button class="btn btn-ghost btn-sm" id="dsportsPipBtn" title="Picture-in-Picture (P)">🪟 PiP</button>
               <button class="btn btn-ghost btn-sm" id="dsportsFsBtn" title="Pantalla completa (F)">⛶ Full</button>
@@ -3171,9 +3167,9 @@ function renderDSports() {
             <div class="dsports-tip-text">Recorre todos los mirrors y elige el primero que cargue correctamente.</div>
           </div>
           <div class="dsports-tip">
-            <div class="dsports-tip-icon">🪟</div>
-            <div class="dsports-tip-title">Picture-in-Picture</div>
-            <div class="dsports-tip-text">Sigue viendo mientras usas otra app o pestaña. Compatible con la mayoría de navegadores.</div>
+            <div class="dsports-tip-icon">📺</div>
+            <div class="dsports-tip-title">Abrir en VLC</div>
+            <div class="dsports-tip-text">Usa el botón <strong>▶ Abrir</strong> para ver el stream en VLC, MX Player o el reproductor nativo de tu Smart TV / celular.</div>
           </div>
         </div>
       </div>
@@ -3350,6 +3346,10 @@ async function switchDSportsChannel(idx, options = {}) {
   if (nameEl) nameEl.textContent = ch.name;
   if (regionEl) regionEl.textContent = ch.region;
   if (idEl) idEl.textContent = `${ch.id}/${channels.length}`;
+
+  // Update external player link
+  const extBtn = document.getElementById('dsportsExternalBtn');
+  if (extBtn) extBtn.href = ch.url;
 
   // Update dot
   document.querySelectorAll('.dsports-status-dot').forEach(d => d.className = 'dsports-status-dot');
