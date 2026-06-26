@@ -3112,10 +3112,10 @@ function renderDSports() {
               <div class="dsports-info-label">Bitrate</div>
               <div class="dsports-info-value mono" id="dsportsBitrate">—</div>
             </div>
-            <div class="dsports-info-stat dsports-info-stat--actions">
-              <a class="btn btn-primary btn-sm" id="dsportsExternalBtn" target="_blank" rel="noopener" title="Abrir en VLC / reproductor externo">
+             <div class="dsports-info-stat dsports-info-stat--actions">
+              <button class="btn btn-primary btn-sm" id="dsportsExternalBtn" title="Abrir en VLC / reproductor externo">
                 ▶ Abrir
-              </a>
+              </button>
               <button class="btn btn-ghost btn-sm" id="dsportsMuteBtn" title="Silenciar/Activar (M)">🔊</button>
               <button class="btn btn-ghost btn-sm" id="dsportsPipBtn" title="Picture-in-Picture (P)">🪟 PiP</button>
               <button class="btn btn-ghost btn-sm" id="dsportsFsBtn" title="Pantalla completa (F)">⛶ Full</button>
@@ -3155,7 +3155,7 @@ function renderDSports() {
       <!-- Tips -->
       <div class="card">
         <h3>💡 Tips para una mejor experiencia</h3>
-        <div class="grid grid-3" style="gap: 0.75rem;">
+        <div class="grid grid-2" style="gap: 0.75rem;">
           <div class="dsports-tip">
             <div class="dsports-tip-icon">📡</div>
             <div class="dsports-tip-title">Si un mirror se corta</div>
@@ -3169,7 +3169,12 @@ function renderDSports() {
           <div class="dsports-tip">
             <div class="dsports-tip-icon">📺</div>
             <div class="dsports-tip-title">Abrir en VLC</div>
-            <div class="dsports-tip-text">Usa el botón <strong>▶ Abrir</strong> para ver el stream en VLC, MX Player o el reproductor nativo de tu Smart TV / celular.</div>
+            <div class="dsports-tip-text">Toca <strong>▶ Abrir</strong> para compartir el enlace. Abre VLC → "Abrir URL" y pega el enlace. En iOS Safari se abre solo.</div>
+          </div>
+          <div class="dsports-tip">
+            <div class="dsports-tip-icon">📋</div>
+            <div class="dsports-tip-title">Copiar enlace</div>
+            <div class="dsports-tip-text">También puedes copiar la URL del mirror activo (panel de info) y abrirla directamente en VLC → "Abrir red" (Ctrl+N / Cmd+N).</div>
           </div>
         </div>
       </div>
@@ -3248,6 +3253,10 @@ async function initDSports() {
     }
   });
 
+  // External player
+  const extBtn = document.getElementById('dsportsExternalBtn');
+  if (extBtn) extBtn.addEventListener('click', openExternalPlayer);
+
   // Retry / next
   const retry = document.getElementById('dsportsRetryBtn');
   if (retry) retry.addEventListener('click', () => {
@@ -3292,6 +3301,25 @@ async function initDSports() {
       if (lvl?.bitrate) br.textContent = (lvl.bitrate / 1000).toFixed(0) + ' kbps';
     }
   }, 2000);
+}
+
+async function openExternalPlayer() {
+  const url = this?.dataset?.url;
+  if (!url) return;
+
+  // 1. Mobile: Web Share API (compartir URL para VLC/MX Player)
+  if (navigator.share) {
+    try {
+      await navigator.share({
+        title: 'DSports - Ver en vivo',
+        text: 'Abrir este enlace en VLC o MX Player:\n' + url,
+      });
+      return;
+    } catch {}
+  }
+
+  // 2. Desktop: abrir en nueva pestaña (Safari lo reproduce; Firefox ofrece VLC)
+  window.open(url, '_blank');
 }
 
 function _dsportsKeys(e) {
@@ -3347,9 +3375,9 @@ async function switchDSportsChannel(idx, options = {}) {
   if (regionEl) regionEl.textContent = ch.region;
   if (idEl) idEl.textContent = `${ch.id}/${channels.length}`;
 
-  // Update external player link
+  // Update external player button
   const extBtn = document.getElementById('dsportsExternalBtn');
-  if (extBtn) extBtn.href = ch.url;
+  if (extBtn) extBtn.dataset.url = ch.url;
 
   // Update dot
   document.querySelectorAll('.dsports-status-dot').forEach(d => d.className = 'dsports-status-dot');
